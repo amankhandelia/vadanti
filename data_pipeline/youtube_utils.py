@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from yt_dlp import YoutubeDL
 
 
@@ -11,7 +11,7 @@ OPTIONS = {
 }
 
 
-def get_list_of_videos_from_channel(channel_name: str) -> List:
+def get_list_of_videos_from_channel(channel_name: str) -> Tuple[List[Tuple[str, str, str]], int]:
 
     channel_path = f"https://www.youtube.com/@{channel_name}/videos"
 
@@ -22,8 +22,10 @@ def get_list_of_videos_from_channel(channel_name: str) -> List:
             channel_path,
             download=False  # just want to extract the info
         )
-    return result
-
-
-channel_name = 'dummy_name'
-result = get_list_of_videos_from_channel(channel_name)
+    audio_ls = []
+    total_duration = 0
+    for entry in result['entries']:
+        total_duration += entry['duration']//60
+        audio_ls.append((entry['id'], entry['title'], entry['duration']//60, channel_name))
+    
+    return audio_ls, total_duration
